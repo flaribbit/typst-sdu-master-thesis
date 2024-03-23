@@ -1,28 +1,38 @@
 // font names
-#let songti = ("Times New Roman", "Source Han Serif SC", "Noto Serif", "Simsun")
-#let heiti = ("Times New Roman", "Source Han Sans", "Noto Sans", "SimHei")
+#let 宋体 = ("Times New Roman", "Source Han Serif SC", "Noto Serif", "Simsun")
+#let 黑体 = ("Times New Roman", "Source Han Sans", "Noto Sans", "SimHei")
+#let 字号 = (
+  初号: 42pt, 小初: 36pt, 一号: 26pt, 小一: 24pt, 二号: 22pt, 小二: 18pt,
+  三号: 16pt, 小三: 15pt, 四号: 14pt, 小四: 12pt, 五号: 10.5pt, 小五: 9pt,
+)
 // font, paragraph, page settings
-#set text(size: 12pt, font: songti)
-#set par(justify: true, leading: 1.3em, first-line-indent: 2em)
+#set text(size: 12pt, font: 宋体)
+#set par(justify: true, leading: 1em, first-line-indent: 2em)
+#set block(above: 1em)
 #set page(paper: "a4", margin: (top: 2.8cm, bottom: 2.5cm, left: 2.5cm, right: 2.5cm))
-#set block(above: 16pt)
+// #set block(above: 16pt)
 // numbering settings
 #set heading(numbering: "1.1")
 #set math.equation(numbering: "1")
 #show heading.where(level: 1): it => {
-  set text(size: 15pt)
-  if it.numbering==none { return align(center, it.body) }
+  set text(size: 字号.小三, font: 黑体)
+  set block(above: 24pt, below: 18pt)
+  if it.numbering==none {
+    align(center, it.body)
+    return
+  }
   counter(math.equation).update(0)
   counter("figure2").step()
   counter("table2").step()
   align(center, box(it))
 }
 #show heading.where(level: 2): it => {
-  set text(size: 14pt)
+  set text(size: 字号.四号, font: 黑体)
+  set block(above: 24pt, below: 6pt)
   par(first-line-indent: 0pt, box(it))
 }
 #show heading.where(level: 3): it => {
-  set text(size: 13pt)
+  set text(size: 字号.小四, font: 黑体)
   par(first-line-indent: 0pt, box(it))
 }
 // helper function to format number
@@ -82,14 +92,10 @@
   figure(body)
 }
 // helper functions
-#let placeholder(len)=for i in range(len){"文本"}
+#let placeholder(len)=for i in range(len){[文本]}
 #let indent()=h(2em)
 #let underline-box(width) = box(width: width, stroke: (bottom: 0.5pt), outset: (bottom: 2pt))
-#let h1(body) = {
-  v(24pt)
-  heading(body, level: 1, numbering: none)
-  v(18pt)
-}
+#let add-toc-en(body, level: 1, numbering: true)=context metadata((type: "toc-en", level: level, body: body, numbering: if numbering {page.numbering} else {none}))
 
 #set text(size: 14pt)
 #align(center, text(size: 16pt, weight: "bold")[原 创 性 声 明])
@@ -113,7 +119,11 @@
 #pagebreak()
 
 #set text(size: 12pt)
-#h1[摘#h(2em)要]
+#set page(numbering: "I")
+#counter(page).update(1)
+
+#heading(level: 1, numbering: none)[摘#h(2em)要]
+#add-toc-en(level: 1)[Chinese Abstract]
 
 #lorem(100)
 
@@ -121,7 +131,8 @@
 
 #pagebreak()
 
-#h1[Abstract]
+#heading(level: 1, numbering: none)[Abstract]
+#add-toc-en(level: 1)[English Abstract]
 
 #lorem(100)
 
@@ -137,24 +148,36 @@
 
 #pagebreak()
 
-#{
+#context{
   set par(first-line-indent: 0pt)
   heading(level: 1, numbering: none, outlined: false)[CONTENTS]
-  locate(loc=>{
-    let elms = query(<eoutline>, loc)
-    for elm in elms {
-      let data = elm.value
-      let loc = elm.location()
-      par[#h(2em*data.level)#data.text#box(width:1fr,repeat[.])#loc.page()]
+  let elems=query(metadata)
+  for e in elems {
+    let v=e.value
+    if v.type=="toc-en" {
+      let loc = e.location()
+      let page = numbering(v.numbering, ..counter(page).at(loc))
+      h(1em*v.level)
+      if v.numbering=="1"{
+        numbering("1.1 ", ..counter(heading).at(loc))
+      }
+      [#v.body#box(width:1fr,repeat[.])#page]
+      parbreak()
     }
-  })
+  }
 }
 
+#set page(numbering: "1")
+#counter(page).update(1)
 #pagebreak()
 
 = 标题
+#add-toc-en(level: 1)[Title]
 
 == 标题
+#add-toc-en(level: 2)[Title]
+
+#placeholder(40)
 
 #placeholder(40)
 
@@ -163,10 +186,12 @@
 #placeholder(60)
 
 == 标题
+#add-toc-en(level: 2)[Title]
 
 #placeholder(30)
 
 === 标题
+#add-toc-en(level: 3)[Title]
 
 #placeholder(80)
 
