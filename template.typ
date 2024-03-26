@@ -48,7 +48,7 @@
     let num = counter(math.equation).at(loc).first()
     return [公式#chap\-#num]
   }
-  let el = it.element.children.at(0)
+  let el = it.element.child.children.first()
   if el.has("key") {
     if el.key == "figure2"{
       let num = counter("figure2").at(it.element.location())
@@ -71,6 +71,7 @@
 })
 // define custom figure function
 #let figure2(body, caption: none, caption-en: none)={
+  set text(size: 字号.五号)
   counter("figure2").step(level: 2)
   figure(body)
   let num = counter("figure2").display(format-num)
@@ -83,6 +84,7 @@
 }
 // define custom table function
 #let table2(body, caption: none, caption-en: none)={
+  set text(size: 字号.五号)
   counter("table2").step(level: 2)
   let num = counter("table2").display(format-num)
   if caption!=none {
@@ -96,7 +98,7 @@
 // helper functions
 #let placeholder(len)=[#for i in range(len){"文本"}]
 #let indent()=h(2em)
-#let underline-box(width) = box(width: width, stroke: (bottom: 0.5pt), outset: (bottom: 2pt))
+#let underline-box(width, body: []) = box(body, width: width, stroke: (bottom: 0.5pt), outset: (bottom: 4pt))
 #let add-toc-en(body, level: 1, numbering: true)=context metadata((type: "toc-en", level: level, body: body, numbering: if numbering {page.numbering} else {none}))
 
 #{
@@ -108,17 +110,18 @@
   align(center, image("assets/sdu.png"))
   {
     set text(size: 字号.小二)
+    place(dy: 1em, box(width: 100%, align(center)[基于Typst的毕业论文模板]))
     par[论文题目：]
   }
   v(4.4cm)
   {
     set align(center)
     set block(above: 1.6em)
-    [作　者　姓　名 ];underline-box(11em);parbreak()
-    [培　养　单　位 ];underline-box(11em);parbreak()
-    [专　业　名　称 ];underline-box(11em);parbreak()
-    [指　导　教　师 ];underline-box(11em);parbreak()
-    [合　作　导　师 ];underline-box(11em);parbreak()
+    [作　者　姓　名 ];underline-box(11em, body: [姓名]);parbreak()
+    [培　养　单　位 ];underline-box(11em, body: [单位]);parbreak()
+    [专　业　名　称 ];underline-box(11em, body: [专业]);parbreak()
+    [指　导　教　师 ];underline-box(11em, body: [教师]);parbreak()
+    [合　作　导　师 ];underline-box(11em, body: [教师]);parbreak()
     v(1.3cm)
     text(size: 字号.小二)[2024年3月23日]
   }
@@ -148,7 +151,12 @@
 #pagebreak()
 
 #set text(size: 字号.小四)
-#set page(numbering: "I")
+#set page(numbering: "I", header: {
+  set block(above: 6pt)
+  set text(size: 字号.五号)
+  align(center)[山东大学硕士学位论文]
+  line(length: 100%, stroke: 0.5pt)
+})
 #counter(page).update(1)
 
 #heading(level: 1, numbering: none)[摘#h(2em)要]
