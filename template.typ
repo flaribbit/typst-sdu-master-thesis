@@ -37,10 +37,12 @@
 #let placeholder(len)=[#for i in range(len){"文本"}]
 #let indent()=h(2em)
 #let underline-box(width, body: []) = box(body, width: width, stroke: (bottom: 0.5pt), outset: (bottom: 4pt))
-#let add-toc-en(body, level: 1, numbering: true)=context metadata((type: "toc-en", level: level, body: body, numbering: if numbering {page.numbering} else {none}))
+#let add-toc-en(body, level: 1, numbering: true)=context metadata((type: "toc-en", level: level, body: body, numbering: numbering, pagestyle: page.numbering))
 
 // 封面页
 #let project(
+  分类号: [],
+  密级: [],
   学号: [],
   标题: [],
   title: [],
@@ -125,8 +127,8 @@ set math.equation(numbering: num=>{
 {
   set text(size: 字号.四号, weight: "bold")
   set par(first-line-indent: 0pt)
-  par[分类号：#h(1fr)单位代码：#box(width: 4em)[10422]]
-  par[密#h(1em)级：#h(1fr)学#h(2em)号：#box(width: 4em, 学号)]
+  par[分类号：#分类号#h(1fr)单位代码：#box(width: 4em)[10422]]
+  par[密#h(1em)级：#密级#h(1fr)学#h(2em)号：#box(width: 4em, 学号)]
   v(20pt)
   align(center, image("assets/sdu.png"))
   {
@@ -155,17 +157,21 @@ pagebreak()
 pagebreak()
 
 // 声明页
-set text(size: 字号.四号)
-align(center, text(size: 字号.三号, weight: "bold")[原 创 性 声 明])
-par[本人郑重声明：所呈交的学位论文，是本人在导师的指导下，独立进行研究所取得的成果。除文中已经注明引用的内容外，本论文不包含任何其他个人或集体已经发表或撰写过的科研成果。对本文的研究作出重要贡献的个人和集体，均已在文中以明确方式标明。本声明的法律责任由本人承担。]
-v(2em)
-par(first-line-indent: 0pt)[论文作者签名：#underline-box(6em)#h(4em)日  期：#underline-box(8em)]
-v(4em)
-align(center, text(size: 字号.三号, weight: "bold")[关于学位论文使用授权的声明])
-par[本人同意学校保留或向国家有关部门或机构送交论文的印刷件和电子版，允许论文被查阅和借阅；本人授权山东大学可以将本学位论文的全部或部分内容编入有关数据库进行检索，可以采用影印、缩印或其他复制手段保存论文和汇编本学位论文。]
-par[(保密论文在解密后应遵守此规定)]
-v(2em)
-par(first-line-indent: 0pt)[论文作者签名：#underline-box(5em) 导师签名：#underline-box(5em) 日  期：#underline-box(6em)]
+{
+  set text(size: 字号.四号)
+  set par(leading: 1.5em)
+  set block(above: 1.5em)
+  align(center, text(size: 字号.三号, weight: "bold")[原 创 性 声 明])
+  par[本人郑重声明：所呈交的学位论文，是本人在导师的指导下，独立进行研究所取得的成果。除文中已经注明引用的内容外，本论文不包含任何其他个人或集体已经发表或撰写过的科研成果。对本文的研究作出重要贡献的个人和集体，均已在文中以明确方式标明。本声明的法律责任由本人承担。]
+  v(2em)
+  par(first-line-indent: 0pt)[论文作者签名：#underline-box(6em)#h(4em)日  期：#underline-box(8em)]
+  v(4em)
+  align(center, text(size: 字号.三号, weight: "bold")[关于学位论文使用授权的声明])
+  par[本人同意学校保留或向国家有关部门或机构送交论文的印刷件和电子版，允许论文被查阅和借阅；本人授权山东大学可以将本学位论文的全部或部分内容编入有关数据库进行检索，可以采用影印、缩印或其他复制手段保存论文和汇编本学位论文。]
+  par[(保密论文在解密后应遵守此规定)]
+  v(2em)
+  par(first-line-indent: 0pt)[论文作者签名：#underline-box(5em) 导师签名：#underline-box(5em) 日  期：#underline-box(6em)]
+}
 pagebreak()
 
 // 中文摘要页
@@ -178,14 +184,14 @@ set page(numbering: "I", header: {
 })
 counter(page).update(1)
 heading(level: 1, numbering: none)[摘#h(2em)要]
-add-toc-en(level: 1)[Chinese Abstract]
+add-toc-en(level: 1, numbering: none)[Chinese Abstract]
 摘要
 par(first-line-indent: 0pt)[*关键词：*#关键词.join("；")]
 pagebreak()
 
 // 英文摘要页
 heading(level: 1, numbering: none)[Abstract]
-add-toc-en(level: 1)[English Abstract]
+add-toc-en(level: 1, numbering: none)[English Abstract]
 abstract
 par(first-line-indent: 0pt)[*Keywords:* #keywords.join("; ")]
 pagebreak()
@@ -207,9 +213,9 @@ context{
     let v=e.value
     if v.type=="toc-en" {
       let loc = e.location()
-      let page = numbering(v.numbering, ..counter(page).at(loc))
+      let page = numbering(v.pagestyle, ..counter(page).at(loc))
       h(1em*(v.level -1))
-      if v.numbering=="1"{
+      if v.numbering!=none {
         numbering("1.1 ", ..counter(heading).at(loc))
       }
       [#v.body#box(width:1fr,repeat[.])#page]
