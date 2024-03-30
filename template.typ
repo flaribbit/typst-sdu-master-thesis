@@ -68,28 +68,30 @@ set block(above: 1em)
 set page(paper: "a4", margin: (top: 2.8cm, bottom: 2.5cm, left: 2.5cm, right: 2.5cm))
 // #set block(above: 16pt)
 // numbering settings
+let fake-par={box();context v(-measure(block()+block()).height)}
 set heading(numbering: "1.1")
 set math.equation(numbering: "1")
 show heading.where(level: 1): it => {
+  set align(center)
   set text(size: 字号.小三, font: 黑体)
   set block(above: 24pt, below: 18pt)
   if it.numbering==none {
-    align(center, it.body)
+    it;fake-par
     return
   }
   counter(math.equation).update(0)
   counter("figure2").step()
   counter("table2").step()
-  align(center, box(it))
+  it;fake-par
 }
 show heading.where(level: 2): it => {
   set text(size: 字号.四号, font: 黑体)
   set block(above: 24pt, below: 6pt)
-  par(first-line-indent: 0pt, box(it))
+  it;fake-par
 }
 show heading.where(level: 3): it => {
   set text(size: 字号.小四, font: 黑体)
-  par(first-line-indent: 0pt, box(it))
+  it;fake-par
 }
 // override default reference format
 show ref: it => {
