@@ -37,7 +37,7 @@
 #let placeholder(len)=[#for i in range(len){"文本"}]
 #let indent()=h(2em)
 #let underline-box(width, body: []) = box(body, width: width, stroke: (bottom: 0.5pt), outset: (bottom: 4pt))
-#let add-toc-en(body, level: 1, numbering: true)=context metadata((type: "toc-en", level: level, body: body, numbering: numbering, pagestyle: page.numbering))
+#let add-toc-en(body, level: 1, numbered: true)=context metadata((type: "toc-en", level: level, body: body, numbered: numbered, page: numbering(page.numbering, ..counter(page).get())))
 
 // 封面页
 #let project(
@@ -121,6 +121,8 @@ set math.equation(numbering: num=>{
   let chap = counter(heading.where(level:1)).get().first()
   [(#chap\-#num)]
 })
+// 参考文献格式
+set bibliography(title: "参考文献", style: "assets/chinese-gb7714-2005-numeric.csl")
 
 
 // 封面页
@@ -184,14 +186,14 @@ set page(numbering: "I", header: {
 })
 counter(page).update(1)
 heading(level: 1, numbering: none)[摘#h(2em)要]
-add-toc-en(level: 1, numbering: none)[Chinese Abstract]
+add-toc-en(level: 1, numbered: false)[Chinese Abstract]
 摘要
 par(first-line-indent: 0pt)[*关键词：*#关键词.join("；")]
 pagebreak()
 
 // 英文摘要页
 heading(level: 1, numbering: none)[Abstract]
-add-toc-en(level: 1, numbering: none)[English Abstract]
+add-toc-en(level: 1, numbered: false)[English Abstract]
 abstract
 par(first-line-indent: 0pt)[*Keywords:* #keywords.join("; ")]
 pagebreak()
@@ -213,12 +215,11 @@ context{
     let v=e.value
     if v.type=="toc-en" {
       let loc = e.location()
-      let page = numbering(v.pagestyle, ..counter(page).at(loc))
       h(1em*(v.level -1))
-      if v.numbering!=none {
+      if v.numbered {
         numbering("1.1 ", ..counter(heading).at(loc))
       }
-      [#v.body#box(width:1fr,repeat[.])#page]
+      [#v.body#box(width:1fr,repeat[.])#v.page]
       parbreak()
     }
   }

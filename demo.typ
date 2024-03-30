@@ -65,5 +65,5 @@ $ f(x)=e^x sin(x) $<eq2>
 @fig1 @fig2 @eq1 @eq2 @tab1
 
 #pagebreak()
-#add-toc-en(level: 1, numbering: false)[Reference]
-#bibliography("ref.bib", title: "参考文献", style: "assets/chinese-gb7714-2005-numeric.csl")
+#add-toc-en(level: 1, numbered: false)[Reference]
+#bibliography("ref.bib")
